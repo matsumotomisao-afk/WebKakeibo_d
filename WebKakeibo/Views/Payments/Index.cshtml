@@ -1,0 +1,265 @@
+﻿@model IEnumerable<WebKakeibo.Models.Payment>
+
+@{
+    ViewData["Title"] = "家計簿一覧";
+    int totalAmount = Model.Sum(p => p.Amount);
+    int? thisMonthBudget = ViewBag.ThisMonthBudget as int?;  // 今月の予算金額をViewBagから取得（null許容型で扱う）
+    int? yosan = thisMonthBudget.HasValue ? thisMonthBudget.Value : (int?)null; // 予算金額を取得（null許容型で扱う）
+    int? zankin = yosan.HasValue ? (yosan.Value - totalAmount) : (int?)null; // 残金を計算（予算がある場合のみ計算）
+}
+
+<h1>家計簿一覧</h1>
+<div class="row">
+    <div class="container d-flex flex-wrap justify-content-center gap-3" style="background-color: white; margin-top:5px;">
+        @* <a asp-action="Index" asp-route-num="@month" id="@month" class="btn btn-sm link-button">@($"{month}月の家計簿")</a>
+        <a asp-action="Index" asp-route-num="@nextmonth" id="@nextmonth" class="btn btn-sm link-button">@($"{nextmonth}月の家計簿")</a> *@
+        @if (ViewBag.DstnctPost != null && ViewBag.DstnctPost.Count > 0)
+        {
+            @foreach (var item in ViewBag.DstnctPost)
+            {
+         
+                if (item > 0)
+                {
+                    <a asp-action="Index" asp-route-num="@item" id="@item" class="btn btn-sm link-button">
+                        @($"{item}月の家計簿")
+                    </a>
+                }
+            }
+        }
+        else
+        {
+            <p>データがありません。</p>
+        }
+
+    </div>
+</div>
+<div class="row">
+    <hr />
+    <div class="col-md-2">
+        <div>
+            <h5>  予算額:  @String.Format("{0:C}", yosan)</h5>
+            <h5>支出計：@String.Format("{0:C}", Model.Sum(a => a.Amount))</h5>
+        </div>
+    </div>
+    
+    <div class="col-md-5"  margin: auto;>
+        <div style="width:50%;height:auto;text-align:center;">
+            <canvas id="Budget"></canvas>
+        </div>
+    </div>
+    
+    <div class="col-md-5" style="text-align:center;">
+        <div style="width: 100%; margin: auto;">
+            <canvas id="Payment"></canvas>
+        </div>
+    </div>
+</div>
+
+<p>
+    <a asp-action="Create">新規作成</a>
+</p>
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @* @Html.DisplayNameFor(model => model.Posted )*@
+                支払い日
+            </th>
+            <th></th>
+            <th>
+                @* @Html.DisplayNameFor(model => model.ItemName) *@
+                科目名
+            </th>
+            <th>
+               @*  @Html.DisplayNameFor(model => model.PaymentName) *@
+               品目名
+            </th>
+            <th>
+                支払先名
+            </th>
+            <th>
+               @*  @Html.DisplayNameFor(model => model.PaymentTypeNavigation) *@
+               決済名
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Amount)
+            </th>
+           @*  <th>
+                @Html.DisplayNameFor(model => model.SubjectNameNavigation)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.User)
+            </th> *@
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>
+                    @*  @Html.DisplayFor(modelItem => item.Posted) *@
+                    @item.Posted.ToString("yyyy年/MM月/dd日")
+                </td>
+                <td>
+                    <img src="~/@item.SubjectNameNavigation.ImageUrl" alt="@item.SubjectNameNavigation.CourseName" style="width:40px; height:auto" />
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.SubjectNameNavigation.CourseName)　@* ここへ移動 *@
+                </td>
+
+                <td>
+                    @Html.DisplayFor(modelItem => item.ItemName)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.PaymentName)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.PaymentTypeNavigation.TypeName)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Amount)
+                    @*  @item.Amount.ToString("C") //金額を通貨形式で表示") *@
+                </td>
+                @* <td>
+                @Html.DisplayFor(modelItem => item.SubjectNameNavigation.CourseName)
+            </td> *@
+                @* <td>
+                @Html.DisplayFor(modelItem => item.User.Id)
+            </td> *@
+                <td>
+                    <a asp-action="Edit" asp-route-id="@item.PaymentId">編集</a> |
+                    <a asp-action="Details" asp-route-id="@item.PaymentId">詳細</a> |
+                    <a asp-action="Delete" asp-route-id="@item.PaymentId">削除</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+    <tfoot>
+        <tr>
+            <td colspan="6" style="text-align:right; font-weight:bold;">合計金額:</td>
+            <td style="font-weight:bold;">@totalAmount.ToString("C")</td>
+            <td colspan="3"></td>
+        </tr>
+    </tfoot>
+</table>
+<style>
+    .link-button {
+        display: inline-block;
+        padding: 0.25rem 0.5rem; /* btn-smのpadding */
+        font-size: 0.875rem; /* btn-smのフォントサイズ */
+        line-height: 1.5; /* btn-smの行間 */
+        border-radius: 0.2rem; /* btn-smの角丸 */
+        color: white;
+        background-color: #007bff;
+        text-decoration: none;
+        cursor: pointer;
+        text-align: center;
+        transition: background-color 0.3s ease;
+    }
+
+        .link-button:hover {
+            background-color: coral;
+        }
+
+        .link-button.active {
+            background-color: coral;
+        }
+</style>
+<script>
+        // ページ読み込み時にViewBag.CurrentMonthの値のボタンにactiveクラスを追加
+    document.addEventListener("DOMContentLoaded", function () {
+
+        const linked = @ViewBag.CurrentMonth;
+
+        if (linked) {
+            const activeButton = document.getElementById(linked);
+            if (activeButton) {
+                activeButton.classList.add('active');
+            }
+        }
+    });
+    //     処理の流れまとめ
+    // linked に値が入っているか確認（空や null ならスキップ）。
+    // 値があれば、その値を id として HTML 要素を取得。
+    // 取得した要素を activeButton 変数に格納。
+       
+    // activeButton が存在するか確認
+    // 存在すれば、その要素の classList に 'active' クラスを追加
+    // これにより、CSSで .active { ... } と定義しているスタイルが適用される
+</script>
+<script>
+       //Paymentデータをグラフ表示
+      const ctpay = document.getElementById('Payment').getContext('2d');
+        new Chart(ctpay, {
+            type: 'bar', //棒グラフ
+
+            data: {
+                labels: @Html.Raw(Json.Serialize(ViewBag.Labels)), // ラベル
+                datasets: [{
+                    data: @Html.Raw(Json.Serialize(ViewBag.Data)), // データ
+                    label: '科目別支払い状況',
+                    backgroundColor: [　　　　　　　　　　　//データ配列の 各要素に対応する色 を順番に適用します。要素が多い場合、色が繰り返されます。　　　　　　　
+                        'rgba(255, 99, 132, 0.2)',
+                        'rgba(54, 162, 235, 0.2)',
+                        'rgba(255, 206, 86, 0.2)',
+                        'rgba(75, 192, 192, 0.2)',
+                        'rgba(255,20,147,0.2)',
+                        'rgba(0,255,255,0.2)'
+                    ],
+                     borderColor: [
+                        'rgba(255, 99, 132, 1)',
+                        'rgba(54, 162, 235, 1)',
+                        'rgba(255, 206, 86, 1)',
+                        'rgba(75, 192, 192, 1)',
+                        'rgba(255,20,147,1)',
+                        'rgba(0,255,255,1)'
+                    ],
+                    borderWidth: 1
+                }]
+            },
+             options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        position: 'top',
+                    },
+                }
+            }
+    })
+</script>
+<script>
+    //予算と残金をグラフ表示
+    const ctbud = document.getElementById('Budget').getContext('2d');
+    new Chart(ctbud, {
+        type: 'doughnut', //ドーナツグラフ
+        data: {
+            labels: ['予算', '残金'], // ラベル
+            datasets: [{
+                data: [@yosan, @zankin], // データ
+                label: '予算と残金',
+                backgroundColor: [　　　　　　　　　　　//データ配列の 各要素に対応する色 を順番に適用します。要素が多い場合、色が繰り返されます。　　　　　　　
+                    'rgba(255, 99, 132, 0.2)',
+                    'rgba(54, 162, 235, 0.2)'
+                ],
+                 borderColor: [
+                    'rgba(255, 99, 132, 1)',
+                    'rgba(54, 162, 235, 1)'
+                ],
+                borderWidth: 1
+            }]
+        },
+         options: {
+            responsive: true,
+            plugins: {
+                legend: {
+                    position: 'top',
+                },
+            }
+        }
+});
+</script>
+
+
+
+

@@ -1,0 +1,154 @@
+﻿@model WebKakeibo.Models.Payment
+@using Microsoft.AspNetCore.Identity      
+@inject UserManager<IdentityUser> userManager  
+
+
+@{
+    ViewData["Title"] = "家計簿作成";
+    var history = ViewData["PaymentHistory"] as List<WebKakeibo.Models.Payment>;　　// 今月の履歴データを取得
+    int totalAmount = history != null ? history.Sum(p => p.Amount) : 0;　　　　　　　　　　// 今月の合計金額を計算
+
+}
+
+<h1>家計簿作成</h1>
+
+<h4>Payment</h4>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="Create">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="form-group">
+                <label asp-for="Posted" class="control-label"></label>
+                <input asp-for="Posted" class="form-control" />
+                <span asp-validation-for="Posted" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="ItemName" class="control-label"></label>
+                <input asp-for="ItemName" class="form-control" />
+                <span asp-validation-for="ItemName" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="PaymentName" class="control-label"></label>
+                <input asp-for="PaymentName" class="form-control" />
+                <span asp-validation-for="PaymentName" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="PaymentTypeId" class="control-label"></label>
+                <select asp-for="PaymentTypeId" class ="form-control" asp-items="ViewBag.PaymentTypeId">
+                    <option value="">選択してください。</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label asp-for="Amount" class="control-label"></label>
+                <input asp-for="Amount" class="form-control" />
+                <span asp-validation-for="Amount" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="SubjectNameId" class="control-label"></label>
+                <select asp-for="SubjectNameId" class ="form-control" asp-items="ViewBag.SubjectNameId">
+                    <option value="">選択してください。</option>
+                </select>
+            </div>
+            <div class="form-group">
+                @* <label asp-for="UserId" class="control-label"></label> *@
+                @* <select asp-for="UserId" class ="form-control" asp-items="ViewBag.UserId"></select> *@
+                <input type="hidden" asp-for="UserId" class="form-control" value="@userManager.GetUserId(User)" readonly="readonly"/>　
+                @* 現在ログイン中のId取得valueに設定 *@
+
+            </div>
+            <div class="form-group">
+                <input type="submit" value="登録" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+    <div class="col-md-3">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title"></h5>家計簿の記入方法</h5>
+                <p class="card-text">家計簿の記入方法について説明します。</p>
+                <p class="card-text">1. 日付: 支払いが発生した日付を入力してください。</p>
+                <p class="card-text">2. 品目: 支払いの品目を入力してください。例: 牛肉、魚など。</p>
+                <p class="card-text">3. 支払い先名: 支払い先名を入力してください。例: ABCストア、中部電力など。</p>
+                <p class="card-text">4. 支払い方法: 決済名を一覧から入力してください。例: ABCストア、中部電力など。</p>
+                <p class="card-text">5. 金額: 支払いの金額を入力してください。</p>
+                <p class="card-text">6. 科目名: 支払いの科目を一覧から選択してください。例: 食費、交通費など。</p>
+                <p class="card-text">7. 登録: 入力が完了したら、登録ボタンをクリックして家計簿に記入してください。</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-5">
+        <div>
+            <h4>今月の記入履歴</h4>
+        </div>
+        <div>
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>
+                            支払日
+                        </th>
+                        <th>
+                            科目名
+                        </th>
+                        <th>
+                            品目名
+                        </th>
+                        <th>
+                            支払い先名
+                        </th>
+                        <th>
+                            決済名
+                        </th>
+                        <th>
+                            @Html.DisplayNameFor(model => model.Amount)
+                        </th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in history)
+                    {
+                        <tr>
+                            <td>
+                                @item.Posted.ToString("yyyy年/MM月/dd日")
+                            </td>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.SubjectNameNavigation.CourseName)
+                            </td>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.ItemName)
+                            </td>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.PaymentName)
+                            </td>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.PaymentTypeNavigation.TypeName)
+                            </td>
+                            <td>
+                                @item.Amount.ToString("C")
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+                <tfoot>
+                    <tr>
+                        <td colspan="4" class="text-end"><strong>合計:</strong></td>
+                        <td><strong>@totalAmount.ToString("C")</strong></td>
+                        <td></td>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+    </div>
+
+
+</div>
+
+<div>
+    <a asp-action="Index">Back to List</a>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

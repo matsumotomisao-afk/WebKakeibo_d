@@ -1,0 +1,112 @@
+﻿@model WebKakeibo.Models.MonthlyBudget
+@using Microsoft.AspNetCore.Identity             
+@inject UserManager<IdentityUser> userManager   
+@{
+    ViewData["Title"] = "月次予算作成";
+    var history = ViewData["MonthlyBudgetHistory"] as List<MonthlyBudget>; 　　// 今月の履歴データを取得
+    var curretYear = DateTime.Now.Year;　　// 現在の年を取得
+}
+
+<h1>月次予算作成</h1>
+
+<h4>MonthlyBudget</h4>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="Create">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="form-group">
+                <label asp-for="YearNum" class="control-label"></label>
+                <input asp-for="YearNum" class="form-control" value="@curretYear" />
+                <span asp-validation-for="YearNum" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="MonthNum" class="control-label"></label>
+                <input asp-for="MonthNum" class="form-control" />
+                <span asp-validation-for="MonthNum" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="BudgetAmount" class="control-label"></label>
+                <input asp-for="BudgetAmount" class="form-control" />
+                <span asp-validation-for="BudgetAmount" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                @* <label asp-for="UserId" class="control-label"></label>
+                <select asp-for="UserId" class ="form-control" asp-items="ViewBag.UserId"></select> *@
+                <input type="hidden" asp-for="UserId" class="form-control" value="@userManager.GetUserId(User)" readonly />
+            </div>
+            <div class="form-group">
+                <input type="submit" value="新規作成" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+    <div class="col-md-3" style="text-align:center;">
+        <h4>記入方法</h4>
+        <div class="card">
+            <div class="card-body">
+                <p class="card-text">家計簿の記入方法について説明します。</p>
+                <p class="card-text">1. 年号: 半角で2026又は2027 などを入力してください。</p>
+                <p class="card-text">2. 月名: 1～12まで重複しないで半角数字で入力してください。</p>
+                <p class="card-text">3. 予算金額: 半角数字で入力してください。</p>
+                <p class="card-text">4. 登録: 入力が完了したら、登録ボタンをクリックしてください。</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-5" style="text-align:center">
+        <h4>記入履歴</h4>
+        <div>
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>
+                            @Html.DisplayNameFor(model => model.YearNum)
+                        </th>
+                        <th>
+                            @Html.DisplayNameFor(model => model.MonthNum)
+                        </th>
+                        <th>
+                            @Html.DisplayNameFor(model => model.BudgetAmount)
+                        </th>
+                        @*  <th>
+                            @Html.DisplayNameFor(model => model.User)
+                        </th>
+                        <th></th> *@
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in history)
+                    {
+                        <tr>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.YearNum)
+                            </td>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.MonthNum)
+                            </td>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.BudgetAmount)
+                            </td>
+                            @* <td>
+                                @Html.DisplayFor(modelItem => item.User.Id)
+                            </td> *@
+                            <td>
+                                <a asp-action="Edit" asp-route-id="@item.MonthlyBudgetId">編集</a> |
+                                <a asp-action="Details" asp-route-id="@item.MonthlyBudgetId">詳細</a> |
+                                <a asp-action="Delete" asp-route-id="@item.MonthlyBudgetId">削除</a>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+</div>   @*  //<div class=”row”>*@
+
+<div>
+    <a asp-action="Index">一覧に戻る</a>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

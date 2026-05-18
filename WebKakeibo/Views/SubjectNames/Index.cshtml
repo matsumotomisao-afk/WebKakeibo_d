@@ -1,0 +1,42 @@
+﻿@model IEnumerable<WebKakeibo.Models.SubjectName>
+
+@{
+    ViewData["Title"] = "科目名一覧";
+}
+
+<h1>科目名一覧</h1>
+<h4 style="color:coral">@TempData["Message"]</h4>
+<p>
+    <a asp-action="Create">新規作成</a>
+</p>
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.CourseName)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.ImageUrl)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var item in Model) {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.CourseName)
+            </td>
+            <td>
+              @*   @Html.DisplayFor(modelItem => item.ImageUrl) *@
+                    <img src="@Url.Content('/' + item.ImageUrl)" alt="@item.CourseName" style="width:50px; height:auto" />
+            </td>
+            <td>
+                <a asp-action="Edit" asp-route-id="@item.SubjectNameId">編集</a> |
+                <a asp-action="Details" asp-route-id="@item.SubjectNameId">詳細</a> |
+                <a asp-action="Delete" asp-route-id="@item.SubjectNameId">削除</a>
+            </td>
+        </tr>
+}
+    </tbody>
+</table>

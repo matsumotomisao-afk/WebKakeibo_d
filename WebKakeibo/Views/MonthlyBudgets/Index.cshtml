@@ -1,0 +1,53 @@
+﻿@model IEnumerable<WebKakeibo.Models.MonthlyBudget>
+
+@{
+    ViewData["Title"] = "月次予算一覧";
+}
+
+<h1>月次予算一覧</h1>
+
+<p>
+    <a asp-action="Create">新規作成</a>
+</p>
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.YearNum)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.MonthNum)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.BudgetAmount)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.User.UserName)  @* //表示をUseerIdからUserNameに変更 *@
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var item in Model) {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.YearNum)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.MonthNum)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.BudgetAmount)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.User.UserName)
+            </td>
+            <td>
+                <a asp-action="Edit" asp-route-id="@item.MonthlyBudgetId">編集</a> |
+                <a asp-action="Details" asp-route-id="@item.MonthlyBudgetId">詳細</a> |
+                <a asp-action="Delete" asp-route-id="@item.MonthlyBudgetId">削除</a>
+            </td>
+        </tr>
+}
+    </tbody>
+</table>

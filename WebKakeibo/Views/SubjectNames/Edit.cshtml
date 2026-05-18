@@ -1,0 +1,105 @@
+﻿@model WebKakeibo.Models.SubjectName
+
+@{
+    ViewData["Title"] = "編集";
+}
+
+<h1>編集</h1>
+<h4 style="color:coral">@TempData["Message"]</h4>
+<h4>科目名</h4>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="Edit" enctype="multipart/form-data">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <input type="hidden" asp-for="SubjectNameId" />
+            <div class="form-group">
+                <label asp-for="CourseName" class="control-label"></label>
+                <input asp-for="CourseName" class="form-control" readonly />
+                <span asp-validation-for="CourseName" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="ImageUrl" class="control-label"></label>
+                <input asp-for="ImageUrl" class="form-control" />
+                <span asp-validation-for="ImageUrl" class="text-danger"></span>
+            </div>
+            @*  //////////////////////////////////////////画像変更 *@
+            <div class="form-group" style="border-color:coral; border-width: 1px; border-style: solid; padding: 10px;">
+                <h4>現在の科目画像</h4>
+      
+                @if (!string.IsNullOrEmpty(Model.ImageUrl))
+                {
+                    <img src="@Url.Content('/' + Model.ImageUrl)" alt=@Model.ImageUrl class="img-thumbnail" />
+                   
+                    <input type="hidden" id="ImageUrlOld" name="ImageUrlOld" value="@Model.ImageUrl" />
+                   @*  /* 画像のURLを保持するためのhiddenフィールド。これにより、画像を変更しない場合でも既存のURLがサーバーに送信される.*/ *@
+                   
+                }
+
+                <div class="text-center" style="font-size:large; padding-bottom:20px; padding-top:20px;">
+                    <label for="changeFile">上の画像を変更</label>
+                    <input type="checkbox" id="changeFile" name="ChangeFile" />
+                    @* /* 画像を変更するかどうかをユーザーが選択するためのチェックボックス。これにより、画像を変更しない場合はファイル入力フィールドが表示されないようにする。*/ *@
+                </div>
+                <div id="fileInputContainer" style="display:none">
+                    <input type="file" class="form-control" name="ImageUrlNew" />
+                   @*  /* 画像を変更チェックがTrueの場合”ファイル選択”を表示する。 */ *@
+                </div>
+            </div>
+            @* ////////////////////////////////////////画像変更　終了 *@
+
+            <div class="form-group">
+                <input type="submit" value="保存" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
+
+<div>
+    <a asp-action="Index">一覧に戻る</a>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    <script>
+        // document.getElementById('changeFile').addEventListener('change', function () { // チェックボックスの状態が変わったときのイベントリスナー
+        //     var fileInputContainer = document.getElementById('fileInputContainer');    // ファイル入力フィールドを含むコンテナ要素
+        //     if (this.checked) {                                                        // チェックボックスがオンの場合
+        //         fileInputContainer.style.display = 'block';                            // ファイル入力フィールドを表示する
+        //     } else {
+        //         fileInputContainer.style.display = 'none';                             // チェックボックスがオフの場合、ファイル入力フィールドを非表示にする
+        //     }
+        // });  
+        // </script>
+        <script>
+            $(document).ready(function(){               // ページが読み込まれたときの処理
+                $('#changeFile').change(function ()     // チェックボックスの状態が変わったときのイベントリスナー
+                {
+                    if($(this).is(':checked')){         // チェックボックスがオンの場合
+                        $('#fileInputContainer').show();  // ファイル入力フィールドを表示する
+                    }
+                    else
+                    {
+                        $('#fileInputContainer').hide();  // チェックボックスがオフの場合、ファイル入力フィールドを非表示にする
+                    }
+                });
+            });
+        </script>
+
+    }
+<style>
+    /* チェックボックスを1.8倍に拡大 */
+    #changeFile {
+        transform: scale(1.8);
+        -webkit-transform: scale(1.8); /* Safari対応 */
+        -ms-transform: scale(1.8); /* IE対応 */
+        margin-right: 8px; /* ラベルとの間隔 */
+        cursor: pointer;
+    }
+    /* 科目名は変更できない旨を強調 */
+    input[readonly] {
+        background-color: #e9ecef;
+        /* 背景色 */
+    }
+</style>
+
